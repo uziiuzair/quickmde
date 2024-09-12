@@ -75,11 +75,11 @@ const PostContent = () => {
             className="w-fit rounded-xl bg-slate-100 px-6 py-4 text-sm text-slate-600 transition-all duration-300 active:bg-violet-100 active:text-violet-600"
             onClick={() => {
               navigator.clipboard.writeText(
-                `https://www.quickmds.com/post/${post.id}`
+                `https://www.quickmde.com/post/${post.id}`
               )
             }}
           >
-            {`https://www.quickmds.com/post/${post.id}`}
+            {`https://www.quickmde.com/post/${post.id}`}
           </button>
         )}
       </div>
