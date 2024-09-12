@@ -6,6 +6,7 @@ import Markdown from "react-markdown"
 import _ from "lodash"
 import remarkGfm from "remark-gfm"
 
+import { LoadingIcon } from "@/components/loading-icon"
 import { PostProvider, usePostContext } from "@/providers/post-provider"
 
 export default function Page({
@@ -86,7 +87,7 @@ const PostContent = () => {
         <div className="justify-be tween flex h-full w-full items-center gap-8">
           <div className="relative h-full shrink-0 grow rounded-3xl bg-slate-50">
             <div className="absolute right-0 top-0 flex h-12 w-12 items-center justify-center">
-              {loading ? "loading" : ""}
+              {loading ? <LoadingIcon /> : ""}
             </div>
             <textarea
               className="h-full w-full resize-none rounded-3xl border-0 bg-transparent p-16 text-lg text-slate-950 outline-none ring-0 placeholder:text-slate-400 focus:ring-0"

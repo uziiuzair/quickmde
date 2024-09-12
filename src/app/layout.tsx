@@ -5,9 +5,9 @@ import type { Metadata } from "next"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "Quick MDS",
+  title: "Quick MDE",
   description:
-    "Quick MDS is a Markdown editor that allows you to write and preview Markdown in real-time.",
+    "Quick MDE is a Markdown editor that allows you to write and preview Markdown in real-time.",
 }
 
 export default function RootLayout({
