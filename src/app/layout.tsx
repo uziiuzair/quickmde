@@ -1,5 +1,6 @@
 import React from "react"
 
+import { GoogleAnalytics } from "@next/third-parties/google"
 import type { Metadata } from "next"
 
 import "./globals.css"
@@ -17,7 +18,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="bg-white text-slate-950">{children}</body>
+      <body className="bg-white text-slate-950">
+        {children}
+
+        <GoogleAnalytics gaId="G-9V24RY1456" />
+      </body>
     </html>
   )
 }
