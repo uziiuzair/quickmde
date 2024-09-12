@@ -39,15 +39,19 @@ const PostContent = () => {
     _.debounce(() => {
       setLoading(true)
 
-      updatePost(markdown)
-        .then(() => {
-          mutate()
-        })
-        .finally(() => {
-          setTimeout(() => {
-            setLoading(false)
-          }, 1000)
-        })
+      if (markdown != "# Hello, world!") {
+        updatePost(markdown)
+          .then(() => {
+            mutate()
+          })
+          .finally(() => {
+            setTimeout(() => {
+              setLoading(false)
+            }, 1000)
+          })
+      } else {
+        setLoading(false)
+      }
     }, 1000),
     [markdown, updatePost, mutate] // All dependencies must be correctly passed here
   )
