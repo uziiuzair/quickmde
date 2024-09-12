@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react"
+import React, { createContext, useContext } from "react"
 
 import { usePost } from "@/hooks/use-post"
 import { APIError, Post } from "@/types/quickmds.types"

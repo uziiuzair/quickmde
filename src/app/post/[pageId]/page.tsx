@@ -47,7 +47,7 @@ const PostContent = () => {
           }, 1000)
         })
     }, 1000),
-    [markdown, updatePost, mutate]
+    [markdown, updatePost, mutate] // All dependencies must be correctly passed here
   )
 
   useEffect(() => {
