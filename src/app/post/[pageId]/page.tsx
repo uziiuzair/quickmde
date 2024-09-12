@@ -91,9 +91,9 @@ const PostContent = () => {
             </div>
             <textarea
               className="h-full w-full resize-none rounded-3xl border-0 bg-transparent p-16 text-lg text-slate-950 outline-none ring-0 placeholder:text-slate-400 focus:ring-0"
-              onChange={(event) => setMarkdown(event.target.value)}
+              onChange={(event) => !postIsLoading && setMarkdown(event.target.value)}
               placeholder="Type some markdown..."
-              value={markdown}
+              value={postIsLoading ? "" : markdown}
             />
           </div>
           <div className="prose h-full w-full max-w-screen-md shrink-0 grow overflow-y-scroll rounded-3xl p-16 shadow-lg">
