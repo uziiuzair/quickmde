@@ -29,7 +29,6 @@ export default function Page({
 
 const PostContent = () => {
   const [loading, setLoading] = useState(false)
-  const [isEditing, setIsEditing] = useState(false)
   const [markdown, setMarkdown] = useState("# Hello, world!")
 
   const editorRef = useRef<HTMLTextAreaElement>(null)
