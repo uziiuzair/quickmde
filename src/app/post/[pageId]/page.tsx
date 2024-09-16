@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import React, { useCallback, useEffect, useRef, useState } from "react"
 import Markdown from "react-markdown"
 
 import _ from "lodash"
@@ -220,7 +220,7 @@ const PostContent = () => {
                 {loading ? <LoadingIcon /> : ""}
               </div>
               <button
-                className="hover:text-electric-violet flex h-12 w-12 items-center justify-center rounded bg-white shadow transition-all duration-300 hover:bg-white/80"
+                className="flex·h-12·w-12·items-center·justify-center·rounded·bg-white·shadow·transition-all·duration-300·hover:bg-white/80·hover:text-electric-violet"
                 onClick={() => inputRef.current?.click()}
               >
                 <svg
