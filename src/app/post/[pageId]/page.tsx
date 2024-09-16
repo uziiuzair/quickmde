@@ -5,6 +5,7 @@ import Markdown from "react-markdown"
 
 import _ from "lodash"
 import Link from "next/link"
+import rehypeRaw from "rehype-raw"
 import remarkGfm from "remark-gfm"
 
 import { LoadingIcon } from "@/components/loading-icon"
@@ -52,7 +53,7 @@ const PostContent = () => {
       } else {
         setLoading(false)
       }
-    }, 1000),
+    }, 5000),
     [markdown, updatePost, mutate] // All dependencies must be correctly passed here
   )
 
@@ -121,7 +122,12 @@ const PostContent = () => {
             />
           </div>
           <div className="prose h-full w-full max-w-screen-md shrink-0 grow overflow-y-scroll rounded-3xl p-16 shadow-lg">
-            <Markdown remarkPlugins={[remarkGfm]}>{markdown}</Markdown>
+            <Markdown
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeRaw]}
+            >
+              {markdown}
+            </Markdown>
           </div>
         </div>
       </div>
