@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import Markdown from "react-markdown"
 
 import _ from "lodash"
@@ -10,6 +10,8 @@ import remarkGfm from "remark-gfm"
 
 import { LoadingIcon } from "@/components/loading-icon"
 import { PostProvider, usePostContext } from "@/providers/post-provider"
+import { generateRandomString } from "@/utils/generate-random-strings"
+import { createClient } from "@/utils/supabase/client"
 
 export default function Page({
   params,
@@ -27,7 +29,14 @@ export default function Page({
 
 const PostContent = () => {
   const [loading, setLoading] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
   const [markdown, setMarkdown] = useState("# Hello, world!")
+
+  const editorRef = useRef<HTMLTextAreaElement>(null)
+  const previewRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const supabase = createClient()
 
   const {
     post,
@@ -54,9 +63,53 @@ const PostContent = () => {
         setLoading(false)
       }
     }, 5000),
-    [markdown, updatePost, mutate] // All dependencies must be correctly passed here
+    [markdown, updatePost, mutate]
   )
 
+  const handleImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    setLoading(true)
+
+    // const imageUrl = await uploadFile(file)
+
+    const file_name = generateRandomString()
+
+    const { data, error } = await supabase.storage
+      .from("media")
+      .upload(file_name, file)
+    if (error) {
+      alert(`Failed to upload file ${error.message}`)
+
+      return
+    }
+
+    console.log(data)
+
+    const cursorPos = editorRef.current?.selectionStart || 0
+
+    const newMarkdown = insertAtCursor(
+      markdown,
+      cursorPos,
+      `![alt text](https://zfoymfpohhsucdszpfzg.supabase.co/storage/v1/object/public/${data.fullPath})`
+    )
+
+    setMarkdown(newMarkdown)
+    setLoading(false)
+  }
+
+  const insertAtCursor = (
+    text: string,
+    cursorPos: number,
+    insertText: string
+  ) => {
+    return text.slice(0, cursorPos) + insertText + text.slice(cursorPos)
+  }
+
+  // Load post data when not editing
   useEffect(() => {
     if (!postIsLoading && post?.markdown) {
       setMarkdown(post.markdown)
@@ -72,6 +125,60 @@ const PostContent = () => {
       debouncedUpdate.cancel()
     }
   }, [markdown, debouncedUpdate])
+
+  // Flags to prevent scroll loop
+  let isEditorScrolling = false
+  let isPreviewScrolling = false
+
+  // Synchronize scroll positions between editor and preview
+  useEffect(() => {
+    const editor = editorRef.current
+    const preview = previewRef.current
+
+    const handleEditorScroll = () => {
+      if (isEditorScrolling) return
+      isPreviewScrolling = true
+
+      if (editor && preview) {
+        const scrollRatio =
+          editor.scrollTop / (editor.scrollHeight - editor.clientHeight)
+        preview.scrollTop =
+          scrollRatio * (preview.scrollHeight - preview.clientHeight)
+      }
+
+      setTimeout(() => {
+        isPreviewScrolling = false
+      }, 50)
+    }
+
+    const handlePreviewScroll = () => {
+      if (isPreviewScrolling) return
+      isEditorScrolling = true
+
+      if (editor && preview) {
+        const scrollRatio =
+          preview.scrollTop / (preview.scrollHeight - preview.clientHeight)
+        editor.scrollTop =
+          scrollRatio * (editor.scrollHeight - editor.clientHeight)
+      }
+
+      setTimeout(() => {
+        isEditorScrolling = false
+      }, 50)
+    }
+
+    if (editor && preview) {
+      editor.addEventListener("scroll", handleEditorScroll)
+      preview.addEventListener("scroll", handlePreviewScroll)
+    }
+
+    return () => {
+      if (editor && preview) {
+        editor.removeEventListener("scroll", handleEditorScroll)
+        preview.removeEventListener("scroll", handlePreviewScroll)
+      }
+    }
+  }, [])
 
   return (
     <div className="flex h-screen w-screen flex-col gap-6 p-16">
@@ -109,19 +216,51 @@ const PostContent = () => {
       <div className="w-full grow overflow-y-scroll py-4">
         <div className="justify-be tween flex h-full w-full items-center gap-8">
           <div className="relative h-full shrink-0 grow rounded-3xl bg-slate-50">
-            <div className="absolute right-0 top-0 flex h-12 w-12 items-center justify-center">
-              {loading ? <LoadingIcon /> : ""}
+            <div className="absolute right-4 top-4 flex items-center">
+              <div className="flex h-12 w-12 items-center justify-center">
+                {loading ? <LoadingIcon /> : ""}
+              </div>
+              <button
+                className="hover:text-electric-violet flex h-12 w-12 items-center justify-center rounded bg-white shadow transition-all duration-300 hover:bg-white/80"
+                onClick={() => inputRef.current?.click()}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="size-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
+                  />
+                </svg>
+              </button>
             </div>
             <textarea
+              ref={editorRef}
               className="h-full w-full resize-none rounded-3xl border-0 bg-transparent p-16 text-lg text-slate-950 outline-none ring-0 placeholder:text-slate-400 focus:ring-0"
-              onChange={(event) =>
-                !postIsLoading && setMarkdown(event.target.value)
-              }
+              onChange={(event) => {
+                setMarkdown(event.target.value)
+              }}
               placeholder="Type some markdown..."
               value={postIsLoading ? "" : markdown}
             />
+            <input
+              ref={inputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              style={{ display: "none" }}
+            />
           </div>
-          <div className="prose h-full w-full max-w-screen-md shrink-0 grow overflow-y-scroll rounded-3xl p-16 shadow-lg">
+          <div
+            ref={previewRef}
+            className="prose h-full w-full max-w-screen-md shrink-0 grow overflow-y-scroll rounded-3xl p-16 shadow-lg prose-img:rounded-xl"
+          >
             <Markdown
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeRaw]}

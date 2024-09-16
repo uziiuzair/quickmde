@@ -11,6 +11,20 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        "electric-violet": {
+          DEFAULT: "#7240fe",
+          50: "#f4f2ff",
+          100: "#ebe8ff",
+          200: "#dad4ff",
+          300: "#bfb1ff",
+          400: "#9f85ff",
+          500: "#7240fe",
+          600: "#7231f6",
+          700: "#631fe2",
+          800: "#5219be",
+          900: "#45179b",
+          950: "#290c69",
+        },
       },
     },
     boxShadow: {
