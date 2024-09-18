@@ -11,6 +11,7 @@ import remarkGfm from "remark-gfm"
 import { LoadingIcon } from "@/components/loading-icon"
 import { PostProvider, usePostContext } from "@/providers/post-provider"
 import { generateRandomString } from "@/utils/generate-random-strings"
+import { onWindowFocus } from "@/utils/on-window-focus"
 import { createClient } from "@/utils/supabase/client"
 
 export default function Page({
@@ -49,20 +50,16 @@ const PostContent = () => {
       setLoading(true)
 
       if (markdown != "# Hello, world!") {
-        updatePost(markdown)
-          .then(() => {
-            mutate()
-          })
-          .finally(() => {
-            setTimeout(() => {
-              setLoading(false)
-            }, 1000)
-          })
+        updatePost(markdown).finally(() => {
+          setTimeout(() => {
+            setLoading(false)
+          }, 1000)
+        })
       } else {
         setLoading(false)
       }
     }, 5000),
-    [markdown, updatePost, mutate]
+    [markdown, updatePost]
   )
 
   const handleImageUpload = async (
@@ -107,6 +104,10 @@ const PostContent = () => {
   ) => {
     return text.slice(0, cursorPos) + insertText + text.slice(cursorPos)
   }
+
+  onWindowFocus(() => {
+    mutate()
+  })
 
   // Load post data when not editing
   useEffect(() => {
